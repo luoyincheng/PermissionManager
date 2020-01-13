@@ -16,6 +16,7 @@ import permissions.dispatcher.processor.JavaProcessorUnit
 import permissions.dispatcher.processor.RequestCodeProvider
 import permissions.dispatcher.processor.RuntimePermissionsElement
 import permissions.dispatcher.processor.util.*
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 
@@ -35,7 +36,7 @@ abstract class JavaBaseProcessorUnit : JavaProcessorUnit {
             systemAlertWindow to SystemAlertWindowHelper(),
             writeSettings to WriteSettingsHelper())
 
-    final override fun createFile(rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider): JavaFile {
+    final override fun createFile(rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider, processingEnv: ProcessingEnvironment): JavaFile {
         return JavaFile.builder(rpe.packageName, createTypeSpec(rpe, requestCodeProvider))
                 .addFileComment(FILE_COMMENT)
                 .build()

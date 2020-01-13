@@ -7,6 +7,7 @@ import permissions.dispatcher.processor.KtProcessorUnit
 import permissions.dispatcher.processor.RequestCodeProvider
 import permissions.dispatcher.processor.RuntimePermissionsElement
 import permissions.dispatcher.processor.util.*
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 
 /**
@@ -32,7 +33,7 @@ abstract class KotlinBaseProcessorUnit : KtProcessorUnit {
 
     abstract fun getActivityName(targetParam: String = "this"): String
 
-    override fun createFile(rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider): FileSpec {
+    override fun createFile(rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider, processingEnv: ProcessingEnvironment): FileSpec {
         return FileSpec.builder(rpe.packageName, rpe.generatedClassName)
                 .addComment(FILE_COMMENT)
                 .addAnnotation(createJvmNameAnnotation(rpe.generatedClassName))

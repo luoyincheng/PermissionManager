@@ -1,5 +1,6 @@
 package permissions.dispatcher.processor
 
+import com.sun.xml.internal.stream.events.ProcessingInstructionEvent
 import permissions.dispatcher.RuntimePermissions
 import permissions.dispatcher.processor.impl.java.JavaActivityProcessorUnit
 import permissions.dispatcher.processor.impl.java.JavaFragmentProcessorUnit
@@ -64,7 +65,7 @@ class PermissionsProcessor : AbstractProcessor() {
         roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)//获取所有被@RuntimePermissions注解的类
                 .sortedBy { it.simpleName.toString() }
                 .forEach {
-                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>$it :  ${it.simpleName} ${it.kind} ")//permissions.dispatcher.sample.mainActivity
+                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>$it :  ${it.simpleName} ${it.kind} ${it.asType().kind}")//permissions.dispatcher.sample.mainActivity
                     val rpe = RuntimePermissionsElement(it as TypeElement)
                     //@Metadata注解是kotlin专有的，因此用这个来判断当前Element是Java类还是Kotlin类
                     val kotlinMetadata = it.getAnnotation(Metadata::class.java)
@@ -79,18 +80,16 @@ class PermissionsProcessor : AbstractProcessor() {
     }
 
     private fun processKotlin(element: Element, rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider) {
-        val processorUnit = findAndValidateProcessorUnit(kotlinProcessorUnits, element)
-        val kotlinFile = processorUnit.createFile(rpe, requestCodeProvider)
+        val processorUnit = findAndValidateProcessorUnit(kotlinProcessorUnits, element, processingEnv)
+        val kotlinFile = processorUnit.createFile(rpe, requestCodeProvider, processingEnv)
         kotlinFile.writeTo(filer)
-        println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> processKotlin")
-//        throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processKotlin")
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>>>>>> processKotlin")
     }
 
     private fun processJava(element: Element, rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider) {
-        val processorUnit = findAndValidateProcessorUnit(javaProcessorUnits, element)
-        val javaFile = processorUnit.createFile(rpe, requestCodeProvider)
+        val processorUnit = findAndValidateProcessorUnit(javaProcessorUnits, element, processingEnv)
+        val javaFile = processorUnit.createFile(rpe, requestCodeProvider, processingEnv)
         javaFile.writeTo(filer)
-        println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processJava")
-//        throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processJava")
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>>>>>> processJava")
     }
 }

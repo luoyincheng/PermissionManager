@@ -6,11 +6,13 @@ import permissions.dispatcher.processor.RuntimePermissionsElement
 import permissions.dispatcher.processor.TYPE_UTILS
 import permissions.dispatcher.processor.exception.*
 import java.util.*
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.tools.Diagnostic
 
 private const val WRITE_SETTINGS = "android.permission.WRITE_SETTINGS"
 private const val SYSTEM_ALERT_WINDOW = "android.permission.SYSTEM_ALERT_WINDOW"
@@ -19,9 +21,10 @@ private const val SYSTEM_ALERT_WINDOW = "android.permission.SYSTEM_ALERT_WINDOW"
  * Obtains the [ProcessorUnit] implementation for the provided element.
  * Raises an exception if no suitable implementation exists
  */
-fun <K> findAndValidateProcessorUnit(units: List<ProcessorUnit<K>>, element: Element): ProcessorUnit<K> {
+fun <K> findAndValidateProcessorUnit(units: List<ProcessorUnit<K>>, element: Element, processingEnv: ProcessingEnvironment): ProcessorUnit<K> {
     val type = element.asType()
     try {
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>>>> findAndValidateProcessorUnit : ${type.kind}")
         return units.first { type.isSubtypeOf(it.getTargetType()) }
     } catch (ex: NoSuchElementException) {
         throw WrongClassException(type)
