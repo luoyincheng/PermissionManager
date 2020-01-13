@@ -9,6 +9,7 @@ import permissions.dispatcher.processor.RuntimePermissionsElement
 import permissions.dispatcher.processor.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
+import javax.tools.Diagnostic
 
 /**
  * Base class for [KtProcessorUnit] implementations.
@@ -34,6 +35,7 @@ abstract class KotlinBaseProcessorUnit : KtProcessorUnit {
     abstract fun getActivityName(targetParam: String = "this"): String
 
     override fun createFile(rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider, processingEnv: ProcessingEnvironment): FileSpec {
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>createFile: ${rpe.packageName}  -  ${rpe.generatedClassName}")
         return FileSpec.builder(rpe.packageName, rpe.generatedClassName)
                 .addComment(FILE_COMMENT)
                 .addAnnotation(createJvmNameAnnotation(rpe.generatedClassName))
