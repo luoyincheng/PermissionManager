@@ -6,12 +6,14 @@ import permissions.dispatcher.processor.impl.java.JavaFragmentProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinActivityProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinFragmentProcessorUnit
 import permissions.dispatcher.processor.util.findAndValidateProcessorUnit
+import java.lang.Exception
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
@@ -43,15 +45,27 @@ class PermissionsProcessor : AbstractProcessor() {
         return hashSetOf(RuntimePermissions::class.java.canonicalName)
     }
 
+    /**
+     * @param annotations:该注解处理器能处理的所有注解类型
+     * @param roundEnv:囊括当前轮生成的抽象语法树RoundEnvironment
+     */
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+//        for (annotation in annotations) {
+//            throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${annotations.size} ${annotation.qualifiedName} ${annotation.kind.name}")
+//        }
+        val elements = roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)
+        for (element in elements) {
+            print(">>>>>>>>>>>> ${element.simpleName} ${element.kind}")
+//            throw Exception(">>>>>>>>>>>> ${element.simpleName} ${element.kind}")
+        }
         // Create a RequestCodeProvider which guarantees unique request codes for each permission request
         val requestCodeProvider = RequestCodeProvider()
 
         // The Set of annotated elements needs to be ordered
         // in order to achieve Deterministic, Reproducible Builds
-        roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)
+        roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)//获取所有被@RuntimePermissions注解的类
                 .sortedBy { it.simpleName.toString() }
-                .forEach {
+                .forEach {//MainActivity  elementType.CLASS
                     val rpe = RuntimePermissionsElement(it as TypeElement)
                     val kotlinMetadata = it.getAnnotation(Metadata::class.java)
                     if (kotlinMetadata != null) {
@@ -67,11 +81,15 @@ class PermissionsProcessor : AbstractProcessor() {
         val processorUnit = findAndValidateProcessorUnit(kotlinProcessorUnits, element)
         val kotlinFile = processorUnit.createFile(rpe, requestCodeProvider)
         kotlinFile.writeTo(filer)
+        println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> processKotlin")
+//        throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processKotlin")
     }
 
     private fun processJava(element: Element, rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider) {
         val processorUnit = findAndValidateProcessorUnit(javaProcessorUnits, element)
         val javaFile = processorUnit.createFile(rpe, requestCodeProvider)
         javaFile.writeTo(filer)
+        println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processJava")
+//        throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>> processJava")
     }
 }

@@ -5,8 +5,8 @@ apply plugin: 'com.jfrog.bintray'
 group = GROUP_ID
 version = VERSION
 
-targetCompatibility = JavaVersion.VERSION_1_6
-sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.java.srcDirs
