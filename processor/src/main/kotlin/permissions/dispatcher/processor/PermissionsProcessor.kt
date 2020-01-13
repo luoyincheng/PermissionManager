@@ -64,9 +64,11 @@ class PermissionsProcessor : AbstractProcessor() {
         roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)//获取所有被@RuntimePermissions注解的类
                 .sortedBy { it.simpleName.toString() }
                 .forEach {
-                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> forEach: ${it.simpleName} ${it.kind} $it")//permissions.dispatcher.sample.mainActivity
+                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>$it :  ${it.simpleName} ${it.kind} ")//permissions.dispatcher.sample.mainActivity
                     val rpe = RuntimePermissionsElement(it as TypeElement)
+                    //@Metadata注解是kotlin专有的，因此用这个来判断当前Element是Java类还是Kotlin类
                     val kotlinMetadata = it.getAnnotation(Metadata::class.java)
+                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>>$it :  $kotlinMetadata ")//permissions.dispatcher.sample.mainActivity
                     if (kotlinMetadata != null) {
                         processKotlin(it, rpe, requestCodeProvider)
                     } else {
