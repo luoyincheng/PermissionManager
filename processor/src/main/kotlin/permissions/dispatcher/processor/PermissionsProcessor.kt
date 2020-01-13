@@ -6,17 +6,16 @@ import permissions.dispatcher.processor.impl.java.JavaFragmentProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinActivityProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinFragmentProcessorUnit
 import permissions.dispatcher.processor.util.findAndValidateProcessorUnit
-import java.lang.Exception
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
+import javax.tools.Diagnostic
 import kotlin.properties.Delegates
 
 /** Element Utilities, obtained from the processing environment */
@@ -35,6 +34,10 @@ class PermissionsProcessor : AbstractProcessor() {
         filer = processingEnv.filer
         ELEMENT_UTILS = processingEnv.elementUtils
         TYPE_UTILS = processingEnv.typeUtils
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> init: $filer")
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> init: $ELEMENT_UTILS")
+        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> init: $TYPE_UTILS")
+
     }
 
     override fun getSupportedSourceVersion(): SourceVersion? {
@@ -50,13 +53,8 @@ class PermissionsProcessor : AbstractProcessor() {
      * @param roundEnv:囊括当前轮生成的抽象语法树RoundEnvironment
      */
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-//        for (annotation in annotations) {
-//            throw Exception(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ${annotations.size} ${annotation.qualifiedName} ${annotation.kind.name}")
-//        }
-        val elements = roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)
-        for (element in elements) {
-            print(">>>>>>>>>>>> ${element.simpleName} ${element.kind}")
-//            throw Exception(">>>>>>>>>>>> ${element.simpleName} ${element.kind}")
+        for (annotation in annotations) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> annotations:  ${annotation.qualifiedName} ${annotation.kind.name}   ${annotations.size}")
         }
         // Create a RequestCodeProvider which guarantees unique request codes for each permission request
         val requestCodeProvider = RequestCodeProvider()
@@ -65,7 +63,8 @@ class PermissionsProcessor : AbstractProcessor() {
         // in order to achieve Deterministic, Reproducible Builds
         roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)//获取所有被@RuntimePermissions注解的类
                 .sortedBy { it.simpleName.toString() }
-                .forEach {//MainActivity  elementType.CLASS
+                .forEach {
+                    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, ">>>>>>>>>>>> forEach: ${it.simpleName} ${it.kind} $it")//permissions.dispatcher.sample.mainActivity
                     val rpe = RuntimePermissionsElement(it as TypeElement)
                     val kotlinMetadata = it.getAnnotation(Metadata::class.java)
                     if (kotlinMetadata != null) {
